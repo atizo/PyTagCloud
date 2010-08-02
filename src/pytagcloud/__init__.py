@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pygame import transform, font, mask, Surface, Rect
+from pygame import transform, font, mask, Surface, Rect, SRCALPHA
 from pygame.sprite import Group, Sprite, collide_mask
 from random import randint
 import colorsys
@@ -151,7 +151,7 @@ def create_tag_image(tags, file, size=(800,600), background=(255,255,255), verti
     Create a png tag cloud image
     """
     pygame.init()
-    image_surface = Surface(size, 0, 32)
+    image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
     tag_store = _draw_cloud(tags, image_surface, size, vertical, fontname=fontname, fontzoom=fontzoom)
     
