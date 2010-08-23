@@ -65,23 +65,10 @@ def _do_collide(sprite, group):
     return False
 
 def _get_group_bounding(tag_store, size):
-    spgw = []
-    spgh = []
-    min_x = 0
-    min_y = 0
-    max_x = size[0]
-    max_y = size[1]    
-    for sp in tag_store:
-        spgw.append(sp.rect.width + sp.rect.x)
-        spgw.append(sp.rect.x)
-        spgh.append(sp.rect.height + sp.rect.y)
-        spgh.append(sp.rect.y)
-    if len(spgw) and len(spgh):
-        min_y = min(spgh)
-        max_y = max(spgh)
-        min_x = min(spgw)
-        max_x = max(spgw)
-    return (min_y, max_y),(min_x, max_x)
+    if tag_store:
+        rects = [tag.rect for tag in tag_store]
+        return rects[0].unionall(rects[1:])
+    return Rect(0, 0, size[0], size[1])
 
 def _search_place(current_tag, tag_store, size):
     """
@@ -91,7 +78,9 @@ def _search_place(current_tag, tag_store, size):
     spl = 1
     direction = randint(0,3)
     
-    (min_y, max_y),(min_x, max_x) = _get_group_bounding(tag_store, size)
+    boundingRect = _get_group_bounding(tag_store, size)
+    min_x, min_y = boundingRect.topleft
+    max_x, max_y = boundingRect.bottomright
     
     spiral = [UP, LEFT, DOWN, RIGHT]
     if randint(0,1):
@@ -161,10 +150,9 @@ def create_tag_image(tags, file, size=(800,600), background=(255,255,255), verti
     tag_store = _draw_cloud(tags, image_surface, size, vertical, fontname=fontname, fontzoom=fontzoom)
     
     if crop:
-        (min_y, max_y),(min_x, max_x) = _get_group_bounding(tag_store, size)
-        crop_surface = Surface((max_x - min_x, max_y - min_y), pygame.SRCALPHA, 32)
-        cropRect = Rect(-min_x, -min_y, -max_x, -max_y)
-        crop_surface.blit(image_surface, cropRect)
+        boundingRect = _get_group_bounding(tag_store, size)
+        crop_surface = Surface((boundingRect.width, boundingRect.height), pygame.SRCALPHA, 32)
+        crop_surface.blit(image_surface, (0,0), area=boundingRect)
         pygame.image.save(crop_surface, file)
     else:
         pygame.image.save(image_surface, file)
