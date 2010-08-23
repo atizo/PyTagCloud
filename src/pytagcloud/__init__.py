@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from pygame import transform, font, mask, Surface, Rect, SRCALPHA
+from pygame import transform, font, mask, Surface, Rect, SRCALPHA, draw
 from pygame.sprite import Group, Sprite, collide_mask
 from random import randint
 import colorsys
 import pygame
 
-TAG_PADDING = 12
+TAG_PADDING = 5
 STEP_SIZE = 3
 
 LOWER_START = 0.45
@@ -15,6 +15,12 @@ UP = 0
 DOWN = 1
 LEFT = 2
 RIGHT = 3
+
+convsurf = Surface((2*TAG_PADDING, 2*TAG_PADDING))
+convsurf.fill((255,0,255))
+convsurf.set_colorkey((255,0,255))
+draw.circle(convsurf, (0, 0, 0),(TAG_PADDING, TAG_PADDING), TAG_PADDING)
+convmask = mask.from_surface(convsurf)
 
 class Tag(Sprite):
     """
@@ -39,8 +45,7 @@ class Tag(Sprite):
         self.rect.x = initial_position[0]
         self.rect.y = initial_position[1]
         self.mask = mask.from_surface(self.image)
-        msize = self.mask.get_size()
-        self.mask = self.mask.scale(((msize[0] + TAG_PADDING), (msize[1] + TAG_PADDING)))
+        self.mask = self.mask.convolve(convmask, None, (TAG_PADDING, TAG_PADDING))
 
     def get_tag(self):
         return self._tag
