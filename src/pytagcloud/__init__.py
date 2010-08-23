@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
 from pygame import transform, font, mask, Surface, Rect, SRCALPHA, draw
 from pygame.sprite import Group, Sprite, collide_mask
-from random import randint
+from random import randint, choice
+from math import sin, cos
 import colorsys
 import pygame
 
 TAG_PADDING = 5
-STEP_SIZE = 3
+STEP_SIZE = 0.05
+RADIUS = 1
 
 LOWER_START = 0.45
 UPPER_START = 0.55
 
-UP = 0
-DOWN = 1
-LEFT = 2
-RIGHT = 3
-
-convsurf = Surface((2*TAG_PADDING, 2*TAG_PADDING))
-convsurf.fill((255,0,255))
-convsurf.set_colorkey((255,0,255))
-draw.circle(convsurf, (0, 0, 0),(TAG_PADDING, TAG_PADDING), TAG_PADDING)
-convmask = mask.from_surface(convsurf)
+convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
+convsurf.fill((255, 0, 255))
+convsurf.set_colorkey((255, 0, 255))
+draw.circle(convsurf, (0, 0, 0), (TAG_PADDING, TAG_PADDING), TAG_PADDING)
+CONVMASK = mask.from_surface(convsurf)
 
 class Tag(Sprite):
     """
@@ -45,7 +42,7 @@ class Tag(Sprite):
         self.rect.x = initial_position[0]
         self.rect.y = initial_position[1]
         self.mask = mask.from_surface(self.image)
-        self.mask = self.mask.convolve(convmask, None, (TAG_PADDING, TAG_PADDING))
+        self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
     def get_tag(self):
         return self._tag
@@ -70,47 +67,30 @@ def _get_group_bounding(tag_store, size):
         return rects[0].unionall(rects[1:])
     return Rect(0, 0, size[0], size[1])
 
+def spiral(t):
+    return (RADIUS * t * cos(t), RADIUS * t * sin(t))
+
 def _search_place(current_tag, tag_store, size):
     """
-    Calculate the bounding box of all tags ins tag_store. Start a spiral search with random direction.
-    Limit the spiral to the overall bounding box +/- the width/height of the current tag.
+    Start an (archimedean)spiral search with random direction.
+    Break off the Search if the spiral exceeds size.
     """
-    spl = 1
-    direction = randint(0,3)
     
-    boundingRect = _get_group_bounding(tag_store, size)
-    min_x, min_y = boundingRect.topleft
-    max_x, max_y = boundingRect.bottomright
+    reverse = choice((-1,1))
     
-    spiral = [UP, LEFT, DOWN, RIGHT]
-    if randint(0,1):
-        spiral.reverse()
+    t=0.
+    start_x = current_tag.rect.x
+    start_y = current_tag.rect.y
     
-    search = True
-    
-    while search and spl < max(size[0], size[1]):
-        search = False
-        if _do_collide(current_tag, tag_store):
-            search = True            
-            for step in range(spl * 2):
-                chkpos = (current_tag.rect.x, current_tag.rect.y)
-                if step == spl:
-                    direction = spiral[(spiral.index(direction) + 1) % len(spiral)]
-                if direction == UP and current_tag.rect.y >= STEP_SIZE and current_tag.rect.y >= min_y - current_tag.rect.height:
-                    current_tag.rect.y -= STEP_SIZE
-                if direction == DOWN and current_tag.rect.y <= size[1] - current_tag.rect.height - STEP_SIZE and current_tag.rect.y <= max_y:
-                    current_tag.rect.y += STEP_SIZE
-                if direction == LEFT and current_tag.rect.x >= STEP_SIZE and current_tag.rect.x >= min_x - current_tag.rect.width:
-                    current_tag.rect.x -= STEP_SIZE
-                if direction == RIGHT and current_tag.rect.x <= size[0] - current_tag.rect.width - STEP_SIZE and current_tag.rect.x <= max_x:
-                    current_tag.rect.x += STEP_SIZE
-                if chkpos != (current_tag.rect.x, current_tag.rect.y):
-                    if not _do_collide(current_tag, tag_store):
-                        search = False
-                        break
-                
-            direction = spiral[(spiral.index(direction) + 1) % len(spiral)]
-            spl += 1
+    while RADIUS * t < (size[0]**2 + size[1]**2)**0.5:
+        if not _do_collide(current_tag, tag_store):
+            break
+         
+        dx, dy = spiral(reverse * t)
+        current_tag.rect.x = start_x + dx
+        current_tag.rect.y = start_y + dy
+        
+        t += STEP_SIZE
             
 def _draw_cloud(tags, surface, size, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5):
         #Sort the tags
