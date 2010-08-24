@@ -9,6 +9,7 @@ import pygame
 TAG_PADDING = 5
 STEP_SIZE = 0.05
 RADIUS = 1
+ECCENTRICITY = 1.5
 
 LOWER_START = 0.45
 UPPER_START = 0.55
@@ -68,9 +69,9 @@ def _get_group_bounding(tag_store, size):
     return Rect(0, 0, size[0], size[1])
 
 def spiral(t):
-    return (RADIUS * t * cos(t), RADIUS * t * sin(t))
+    return (ECCENTRICITY * RADIUS * t * cos(t), RADIUS * t * sin(t))
 
-def _search_place(current_tag, tag_store, size):
+def _search_place(current_tag, tag_store, sizeRect):
     """
     Start an (archimedean)spiral search with random direction.
     Break off the Search if the spiral exceeds size.
@@ -78,12 +79,12 @@ def _search_place(current_tag, tag_store, size):
     
     reverse = choice((-1,1))
     
-    t=0.
+    t = 0.
     start_x = current_tag.rect.x
     start_y = current_tag.rect.y
     
-    while RADIUS * t < (size[0]**2 + size[1]**2)**0.5:
-        if not _do_collide(current_tag, tag_store):
+    while RADIUS * t < (sizeRect.width**2 + sizeRect.height**2)**0.5:
+        if not _do_collide(current_tag, tag_store) and sizeRect.contains(current_tag.rect):
             break
          
         dx, dy = spiral(reverse * t)
@@ -92,11 +93,12 @@ def _search_place(current_tag, tag_store, size):
         
         t += STEP_SIZE
             
-def _draw_cloud(tags, surface, size, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5):
+def _draw_cloud(tags, surface, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5):
         #Sort the tags
     tag_list = sorted(tags, key=lambda tag: tag['size'])
     tag_list.reverse()
     
+    sizeRect = surface.get_rect()
     tag_store = Group()
     for tag in tag_list:
         rot = 0
@@ -104,17 +106,17 @@ def _draw_cloud(tags, surface, size, vertical=True, fontname='fonts/Arial.ttf', 
             rot = 90
         currentTag = Tag(tag, (0,0), rot, fontname=fontname, fontzoom=fontzoom)
         
-        xpos = size[0] - currentTag.rect.width
+        xpos = sizeRect.width - currentTag.rect.width
         if xpos < 0: xpos = 0
         xpos = randint(int(xpos * LOWER_START) , int(xpos * UPPER_START))
         currentTag.rect.x = xpos
         
-        ypos = size[1] - currentTag.rect.height
+        ypos = sizeRect.height - currentTag.rect.height
         if ypos < 0: ypos = 0
         ypos = randint(int(ypos * LOWER_START), int(ypos * UPPER_START))
         currentTag.rect.y = ypos
         
-        _search_place(currentTag, tag_store, size)
+        _search_place(currentTag, tag_store, sizeRect)
                 
         tag_store.add(currentTag)
         surface.blit(currentTag.image, currentTag.rect)
@@ -127,7 +129,7 @@ def create_tag_image(tags, file, size=(800,600), background=(255,255,255), verti
     pygame.init()
     image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
-    tag_store = _draw_cloud(tags, image_surface, size, vertical, fontname=fontname, fontzoom=fontzoom)
+    tag_store = _draw_cloud(tags, image_surface, vertical, fontname=fontname, fontzoom=fontzoom)
     
     if crop:
         boundingRect = _get_group_bounding(tag_store, size)
@@ -144,7 +146,7 @@ def create_html_data(tags, size=(600,400), fontname='fonts/Arial.ttf', fontzoom=
     pygame.init()
     image_surface = Surface(size, 0, 32)
     image_surface.fill((255,255,255))
-    tag_store = _draw_cloud(tags, image_surface, size, False, fontname=fontname, fontzoom=fontzoom)
+    tag_store = _draw_cloud(tags, image_surface, False, fontname=fontname, fontzoom=fontzoom)
     tag_store = sorted(tag_store, key=lambda tag: tag.tag['size'])
     tag_store.reverse()
     data = {
