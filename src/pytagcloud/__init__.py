@@ -16,6 +16,7 @@ DOWN = 1
 LEFT = 2
 RIGHT = 3
 
+pygame.init()
 convsurf = Surface((2*TAG_PADDING, 2*TAG_PADDING))
 convsurf.fill((255,0,255))
 convsurf.set_colorkey((255,0,255))
@@ -144,7 +145,6 @@ def create_tag_image(tags, file, size=(800,600), background=(255,255,255), verti
     """
     Create a png tag cloud image
     """
-    pygame.init()
     image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
     tag_store = _draw_cloud(tags, image_surface, size, vertical, fontname=fontname, fontzoom=fontzoom)
@@ -161,7 +161,6 @@ def create_html_data(tags, size=(600,400), fontname='fonts/Arial.ttf', fontzoom=
     """
     Create data structures to be used for HTML tag clouds.
     """
-    pygame.init()
     image_surface = Surface(size, 0, 32)
     image_surface.fill((255,255,255))
     tag_store = _draw_cloud(tags, image_surface, size, False, fontname=fontname, fontzoom=fontzoom)
