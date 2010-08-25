@@ -30,7 +30,13 @@ class Test(unittest.TestCase):
     def test_create_tag_image(self):
         home = os.getenv('USERPROFILE') or os.getenv('HOME')
         start = time.time()
-        create_tag_image(self.tags, os.path.join(home, 'cloud.png'), size=(300,400), background=(255,255,255,255), vertical=False, crop=False, fontname='fonts/Arial.ttf', fontzoom=3)
+        create_tag_image(self.tags, os.path.join(home, 'cloud.png'), size=(600,500), background=(255,255,255,255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=3)
+        print "Duration: %d sec" % (time.time() - start)
+    
+    def test_create_tag_image_rect(self):
+        home = os.getenv('USERPROFILE') or os.getenv('HOME')
+        start = time.time()
+        create_tag_image(self.tags, os.path.join(home, 'cloud_rect.png'), size=(500,500), background=(255,255,255,255), vertical=True, crop=True, rectangular=True, fontname='fonts/Arial.ttf', fontzoom=3)
         print "Duration: %d sec" % (time.time() - start)
         
     def test_create_html_data(self):
