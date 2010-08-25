@@ -7,13 +7,14 @@ import colorsys
 import pygame
 
 TAG_PADDING = 5
-STEP_SIZE = 0.05
+STEP_SIZE = 1 #relative to base stepsize of each spiral function
 RADIUS = 1
 ECCENTRICITY = 1.5
 
 LOWER_START = 0.45
 UPPER_START = 0.55
 
+pygame.init()
 convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
 convsurf.fill((255, 0, 255))
 convsurf.set_colorkey((255, 0, 255))
@@ -63,48 +64,65 @@ def _do_collide(sprite, group):
     return False
 
 def _get_group_bounding(tag_store, size):
+    sizeRect = Rect(0, 0, size[0], size[1])
     if tag_store:
         rects = [tag.rect for tag in tag_store]
-        return rects[0].unionall(rects[1:])
-    return Rect(0, 0, size[0], size[1])
+        union = rects[0].unionall(rects[1:])
+        if sizeRect.contains(union):
+            return union
+    return sizeRect
 
-def _archimedean_spiral(t):
-    return (ECCENTRICITY * RADIUS * t * cos(t), RADIUS * t * sin(t))
+def _archimedean_spiral(reverse):
+    DEFAULT_STEP = 0.05 #radians
+    t = 0
+    while True:
+        t += DEFAULT_STEP * STEP_SIZE * reverse
+        yield (ECCENTRICITY * RADIUS * t * cos(t), RADIUS * t * sin(t))
 
-def _rectangular_spiral(t):
-    if t < 0:
-        return _rectangular_spiral(-t)
-    pos = (t - int(t)) if (t - int(t)) else 1
-    px = (-1 + 2 * (ceil(t + 1) % 2 + pos * (ceil(t) % 2)))
-    py = (-1 + 2 * (ceil(t) % 2 + pos * (ceil(t + 1) % 2)))
-    return (px * RADIUS * ceil(t / 4.) * (-1 + 2 * (ceil(t / 2.) % 2)),
-            py * RADIUS * ceil((t - 1) / 4.) * (-1 + 2 * (ceil((t - 1) / 2.) % 2)))
+def _rectangular_spiral(reverse):
+    DEFAULT_STEP = 3 #px
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    if reverse:
+        directions.reverse()
+    direction = directions[0]
+    
+    spl = 1
+    dx = dy = 0
+    while True:
+        for step in range(spl * 2):
+            if step == spl:
+                direction = directions[(spl - 1) % 4]
+            dx += direction[0] * STEP_SIZE * DEFAULT_STEP
+            dy += direction[1] * STEP_SIZE * DEFAULT_STEP
+            yield dx, dy
+        spl += 1
 
 def _search_place(current_tag, tag_store, sizeRect, spiral):
     """
-    Start an (archimedean)spiral search with random direction.
-    Break off the Search if the spiral exceeds size.
+    Start a spiral search with random direction.
+    Break off the Search if the spiral exceeds the bounding Rect
     """
     
     reverse = choice((-1,1))
     
-    t = 0.
     start_x = current_tag.rect.x
     start_y = current_tag.rect.y
     
-    while RADIUS * t < (sizeRect.width**2 + sizeRect.height**2)**0.5:
-        if not _do_collide(current_tag, tag_store) and sizeRect.contains(current_tag.rect):
+    for dx, dy in spiral(reverse) :
+        if min((dx, dy)) > (sizeRect.width**2 + sizeRect.height**2)**0.5:
             break
          
-        dx, dy = spiral(reverse * t)
         current_tag.rect.x = start_x + dx
         current_tag.rect.y = start_y + dy
         
-        t += STEP_SIZE
+        if not _do_collide(current_tag, tag_store) and sizeRect.contains(current_tag.rect):
+            break
+        
             
-def _draw_cloud(tags, surface, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5, rectangular=False):
-        #Sort the tags
-    tag_list = sorted(tags, key=lambda tag: tag['size'])
+def _draw_cloud(tag_list, surface, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5, rectangular=False):
+    #Sort the tags by size and wordlength
+    tag_list.sort(key=lambda tag: len(tag['tag']))
+    tag_list.sort(key=lambda tag: tag['size'])
     tag_list.reverse()
     
     if rectangular:
@@ -140,7 +158,6 @@ def create_tag_image(tags, file, size=(800,600), background=(255,255,255), verti
     """
     Create a png tag cloud image
     """
-    pygame.init()
     image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
     tag_store = _draw_cloud(tags, image_surface, vertical, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
@@ -157,7 +174,6 @@ def create_html_data(tags, size=(600,400), fontname='fonts/Arial.ttf', fontzoom=
     """
     Create data structures to be used for HTML tag clouds.
     """
-    pygame.init()
     image_surface = Surface(size, 0, 32)
     image_surface.fill((255,255,255))
     tag_store = _draw_cloud(tags, image_surface, False, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
