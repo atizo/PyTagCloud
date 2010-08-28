@@ -26,31 +26,31 @@ class Test(unittest.TestCase):
                       {'color': (232, 43, 30), 'size': 14, 'tag': u'Java'},
                       {'color': (85, 122, 102), 'size': 19, 'tag': 'Design'},
         ]
-        
+
     def test_create_tag_image(self):
         home = os.getenv('USERPROFILE') or os.getenv('HOME')
         start = time.time()
-        create_tag_image(self.tags, os.path.join(home, 'cloud.png'), size=(600,500), background=(255,255,255,255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=3)
+        create_tag_image(self.tags, os.path.join(home, 'cloud.png'), size=(600, 500), background=(255, 255, 255, 255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=3)
         print "Duration: %d sec" % (time.time() - start)
-    
+
     def test_create_tag_image_rect(self):
         home = os.getenv('USERPROFILE') or os.getenv('HOME')
         start = time.time()
-        create_tag_image(self.tags, os.path.join(home, 'cloud_rect.png'), size=(500,500), background=(255,255,255,255), vertical=True, crop=True, rectangular=True, fontname='fonts/Arial.ttf', fontzoom=3)
+        create_tag_image(self.tags, os.path.join(home, 'cloud_rect.png'), size=(300, 400), background=(255, 255, 255, 255), vertical=False, crop=False, rectangular=True, fontname='fonts/Arial.ttf', fontzoom=3)
         print "Duration: %d sec" % (time.time() - start)
-        
+
     def test_create_html_data(self):
         """
         HTML code sample
         """
-        data = create_html_data(self.tags, size=(600,400), fontname='fonts/Arial.ttf', fontzoom=4)
+        data = create_html_data(self.tags, size=(600, 400), fontname='fonts/Arial.ttf', fontzoom=3)
         print '\nCSS\n'
         for style in data['css']:
             print style
-        
+
         print '\nHTML\n'
         for link in data['links']:
             print '<a class="tag %(cls)s" href="#" style="top: %(top)dpx; left: %(left)dpx; font-size: %(size)dpx;">%(tag)s</a>' % link
-        
+
 if __name__ == "__main__":
     unittest.main()
