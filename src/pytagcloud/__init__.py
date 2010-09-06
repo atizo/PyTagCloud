@@ -56,6 +56,29 @@ class Tag(Sprite):
         self.mask = mask.from_surface(self.image)
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
+def defscale(count, mincount, maxcount, minsize, maxsize):
+    return minsize + (maxsize - minsize) * (count / (maxcount - mincount))**0.75
+
+def make_tags(wordcounts, minsize=9, maxsize=25, colors=None, scalef=defscale):
+    """
+    sizes and colors tags 
+    wordcounts is a dictionary of words(tags) : count (e.g. how often the
+    word appears in a text)
+    the tags are assigned sizes between minsize and maxsize, the function used
+    is determined by scalef (default: square root)
+    color is either chosen from colors (list of rgb tuples) if provided or random
+    """
+    counts = wordcounts.values()
+    maxcount = max(counts)
+    mincount = min(counts)
+    tags = []
+    for word in wordcounts:
+        color = choice(colors) if colors else (randint(0,255), randint(0,255),
+                                               randint(0, 255))
+        tags.append({'color': color, 'size': scalef(wordcounts[word], mincount,
+                                                    maxcount, minsize, maxsize),
+                     'tag': word})
+    return tags
 
 def _do_collide(sprite, group):
     """
