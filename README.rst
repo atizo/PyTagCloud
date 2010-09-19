@@ -24,6 +24,6 @@ See tests.py
 Example
 =======
 
-.. image:: http://github.com/PaulKlinger/PyTagCloud/raw/archimedes/example.png
+.. image:: http://github.com/atizo/PyTagCloud/raw/master/docs/example.png
 
 Cloud generated from http://wikilivres.info/wiki/Zur_Elektrodynamik_bewegter_K%C3%B6rper
