@@ -20,3 +20,10 @@ Installation
 Usage
 =====
 See tests.py
+
+Example
+=======
+
+.. image:: http://github.com/PaulKlinger/PyTagCloud/raw/archimedes/example.png
+
+Cloud generated from http://wikilivres.info/wiki/Zur_Elektrodynamik_bewegter_K%C3%B6rper
