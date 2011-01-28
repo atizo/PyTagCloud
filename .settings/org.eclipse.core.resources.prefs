@@ -1,4 +1,7 @@
-#Mon Aug 02 20:41:38 CEST 2010
+#Fri Jan 28 15:09:09 CET 2011
 eclipse.preferences.version=1
 encoding//src/pytagcloud/__init__.py=utf-8
-encoding//src/pytagcloud/tests.py=utf-8
+encoding//src/pytagcloud/colors.py=utf-8
+encoding//src/pytagcloud/lang/counter.py=utf-8
+encoding//src/pytagcloud/lang/stopwords.py=utf-8
+encoding//src/pytagcloud/test/tests.py=utf-8

@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
+from math import sin, cos, ceil
 from pygame import transform, font, mask, Surface, Rect, SRCALPHA, draw
 from pygame.sprite import Group, Sprite, collide_mask
 from random import randint, choice
-from math import sin, cos, ceil
 import colorsys
+from copy import copy
 import pygame
+import os
 
 TAG_PADDING = 5
-STEP_SIZE = 1 #relative to base stepsize of each spiral function
+STEP_SIZE = 1 #relative to base step size of each spiral function
 RADIUS = 1
 ECCENTRICITY = 1.5
 
 LOWER_START = 0.45
 UPPER_START = 0.55
+
+FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
+DEFAULT_FONT = 'DroidSans.ttf'
+DEFAULT_PALETTE = 'default'
 
 pygame.init()
 convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
@@ -21,15 +27,23 @@ convsurf.set_colorkey((255, 0, 255))
 draw.circle(convsurf, (0, 0, 0), (TAG_PADDING, TAG_PADDING), TAG_PADDING)
 CONVMASK = mask.from_surface(convsurf)
 
+LAYOUT_HORIZONTAL = 0
+LAYOUT_VERTICAL = 1
+LAYOUT_MOST_HORIZONTAL = 2
+LAYOUT_MOST_VERTICAL = 3
+LAYOUT_MIX = 4
+
+LAYOUTS = (LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MOST_HORIZONTAL, LAYOUT_MOST_VERTICAL, LAYOUT_MIX)
+
 class Tag(Sprite):
     """
     Font tag sprite. Blit the font to a surface to correct the font padding
     """
-    def __init__(self, tag, initial_position, rotation=0, fontname='fonts/Arial.ttf', fontzoom=5):
+    def __init__(self, tag, initial_position, rotation=0, fontname=DEFAULT_FONT, fontzoom=5):
         Sprite.__init__(self)
-        self.tag = tag
+        self.tag = copy(tag)
         self.rotation = rotation
-        fonter = font.Font(fontname, int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
+        fonter = font.Font(os.path.join(FONT_DIR, fontname), int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
         self.tag['size'] *= fontzoom
         fonter = transform.rotate(fonter, rotation)
         frect = fonter.get_bounding_rect()
@@ -57,27 +71,27 @@ class Tag(Sprite):
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):
-    return minsize + (maxsize - minsize) * (count / (maxcount - mincount))**0.75
+    return minsize + (maxsize - minsize) * (count * 1.0 / (maxcount - mincount))**0.75
 
-def make_tags(wordcounts, minsize=9, maxsize=25, colors=None, scalef=defscale):
+def make_tags(wordcounts, minsize=6, maxsize=36, colors=None, scalef=defscale):
     """
     sizes and colors tags 
-    wordcounts is a dictionary of words(tags) : count (e.g. how often the
+    wordcounts is a list of tuples(tags, count). (e.g. how often the
     word appears in a text)
     the tags are assigned sizes between minsize and maxsize, the function used
     is determined by scalef (default: square root)
     color is either chosen from colors (list of rgb tuples) if provided or random
     """
-    counts = wordcounts.values()
+    counts = [tag[1] for tag in wordcounts]
     maxcount = max(counts)
     mincount = min(counts)
     tags = []
-    for word in wordcounts:
-        color = choice(colors) if colors else (randint(0,255), randint(0,255),
-                                               randint(0, 255))
-        tags.append({'color': color, 'size': scalef(wordcounts[word], mincount,
+    for word_count in wordcounts:
+        color = choice(colors) if colors else (randint(10, 220), randint(10, 220),
+                                               randint(10, 220))
+        tags.append({'color': color, 'size': scalef(word_count[1], mincount,
                                                     maxcount, minsize, maxsize),
-                     'tag': word})
+                     'tag': word_count[0]})
     return tags
 
 def _do_collide(sprite, group):
@@ -124,7 +138,7 @@ def _rectangular_spiral(reverse):
             yield dx, dy
         spl += 1
 
-def _search_place(current_tag, tag_store, sizeRect, spiral, vertical):
+def _search_place(current_tag, tag_store, sizeRect, spiral, flip):
     """
     Start a spiral search with random direction.
     Break off the Search if the spiral exceeds the bounding Rect
@@ -152,12 +166,19 @@ def _search_place(current_tag, tag_store, sizeRect, spiral, vertical):
 
     if suboptimal:
         current_tag.rect = suboptimal
-    elif vertical:
+    elif flip:
         current_tag.flip()
-        _search_place(current_tag, tag_store, sizeRect, spiral, False)
+        _search_place(current_tag, tag_store, sizeRect, spiral, flip=False)
 
-def _draw_cloud(tag_list, surface, vertical=True, fontname='fonts/Arial.ttf', fontzoom=5, rectangular=False):
-    #Sort the tags by size and wordlength
+def _draw_cloud(
+        tag_list, 
+        surface, 
+        layout=LAYOUT_MIX, 
+        fontname=DEFAULT_FONT, 
+        palette=DEFAULT_PALETTE, 
+        fontzoom=5, 
+        rectangular=False):
+    #Sort the tags by size and word length
     tag_list.sort(key=lambda tag: len(tag['tag']))
     tag_list.sort(key=lambda tag: tag['size'])
     tag_list.reverse()
@@ -171,8 +192,21 @@ def _draw_cloud(tag_list, surface, vertical=True, fontname='fonts/Arial.ttf', fo
     tag_store = Group()
     for tag in tag_list:
         rot = 0
-        if vertical and randint(0, 2) == 0:
+        flip = False
+        if layout == LAYOUT_MIX and randint(0, 2) == 0:
             rot = 90
+        elif layout == LAYOUT_VERTICAL:
+            rot = 90
+        elif layout == LAYOUT_MOST_VERTICAL:
+            rot = 90
+            flip = True
+        elif layout == LAYOUT_MOST_HORIZONTAL:
+            flip = True
+        
+        #set color if tag has no color
+        if not hasattr(tag, 'color'):
+            pass
+        
         currentTag = Tag(tag, (0, 0), rot, fontname=fontname, fontzoom=fontzoom)
 
         xpos = sizeRect.width - currentTag.rect.width
@@ -185,19 +219,29 @@ def _draw_cloud(tag_list, surface, vertical=True, fontname='fonts/Arial.ttf', fo
         ypos = randint(int(ypos * LOWER_START), int(ypos * UPPER_START))
         currentTag.rect.y = ypos
 
-        _search_place(currentTag, tag_store, sizeRect, spiral, vertical)
+        _search_place(currentTag, tag_store, sizeRect, spiral, flip)
 
         tag_store.add(currentTag)
         surface.blit(currentTag.image, currentTag.rect)
     return tag_store
 
-def create_tag_image(tags, file, size=(800, 600), background=(255, 255, 255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=2, rectangular=False):
+def create_tag_image(
+        tags, 
+        file, 
+        size=(800, 600), 
+        background=(255, 255, 255), 
+        layout=LAYOUT_MIX, 
+        crop=True, 
+        fontname=DEFAULT_FONT,
+        palette=DEFAULT_PALETTE, 
+        fontzoom=2, 
+        rectangular=False):
     """
     Create a png tag cloud image
     """
     image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
-    tag_store = _draw_cloud(tags, image_surface, vertical, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
+    tag_store = _draw_cloud(tags, image_surface, layout, fontname=fontname, palette=palette, fontzoom=fontzoom, rectangular=rectangular)
 
     if crop:
         boundingRect = _get_group_bounding(tag_store, size)
@@ -207,13 +251,13 @@ def create_tag_image(tags, file, size=(800, 600), background=(255, 255, 255), ve
     else:
         pygame.image.save(image_surface, file)
 
-def create_html_data(tags, size=(600, 400), fontname='fonts/Arial.ttf', fontzoom=2, rectangular=False):
+def create_html_data(tags, size=(600, 400), fontname=DEFAULT_FONT, fontzoom=2, rectangular=False):
     """
     Create data structures to be used for HTML tag clouds.
     """
     image_surface = Surface(size, 0, 32)
     image_surface.fill((255, 255, 255))
-    tag_store = _draw_cloud(tags, image_surface, False, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
+    tag_store = _draw_cloud(tags, image_surface, layout=LAYOUT_HORIZONTAL, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
     tag_store = sorted(tag_store, key=lambda tag: tag.tag['size'])
     tag_store.reverse()
     data = {
