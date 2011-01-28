@@ -71,7 +71,7 @@ class Tag(Sprite):
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):
-    return minsize + (maxsize - minsize) * (count * 1.0 / (maxcount - mincount))**0.75
+    return int(minsize + (maxsize - minsize) * (count * 1.0 / (maxcount - mincount))**0.75)
 
 def make_tags(wordcounts, minsize=6, maxsize=36, colors=None, scalef=defscale):
     """

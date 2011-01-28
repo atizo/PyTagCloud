@@ -24,31 +24,36 @@ class Test(unittest.TestCase):
         self.hound.close()
         
     def test_tag_counter(self):
-        self.tag_list = get_tag_counts(self.hound.read())[:50]     
-        self.assertTrue(('sir', 350) in self.tag_list)
+        tag_list = get_tag_counts(self.hound.read())[:50]     
+        self.assertTrue(('sir', 350) in tag_list)
 
     def test_make_tags(self):
-        self.mtags = make_tags(get_tag_counts(self.hound.read())[:60])
-        print self.mtags
-        create_tag_image(self.mtags, os.path.join(self.test_images, 'cloud_mtags.png'), size=(800, 800), background=(255, 255, 255, 255), layout=LAYOUT_MIX, crop=True, fontname='Lobster.ttf', fontzoom=3)
+        mtags = make_tags(get_tag_counts(self.hound.read())[:60])
+        found = False
+        for tag in mtags:
+            if tag['tag'] == 'sir' and tag['size'] == 40:
+                found = True
+                break
+            
+        self.assertTrue(found)
 
-    def _test_create_tag_image(self):
+    def test_create_tag_image(self):
         start = time.time()
-        tags = copy(self.tags)
+        tags = make_tags(get_tag_counts(self.hound.read())[:30])
         for layout in LAYOUTS:
             create_tag_image(tags, os.path.join(self.test_images, 'cloud_%s.png' % layout), size=(600, 500), background=(255, 255, 255, 255), layout=layout, crop=True, fontname='Lobster.ttf', fontzoom=3)
         print "Duration: %d sec" % (time.time() - start)
 
-    def _test_create_tag_image_rect(self):
+    def test_create_tag_image_rect(self):
         start = time.time()
-        create_tag_image(self.tags, os.path.join(self.test_images, 'cloud_rect.png'), size=(300, 400), background=(255, 255, 255, 255), layout=LAYOUT_HORIZONTAL, crop=False, rectangular=True, fontname='Lobster.ttf', fontzoom=3)
+        create_tag_image(make_tags(get_tag_counts(self.hound.read())[:30]), os.path.join(self.test_images, 'cloud_rect.png'), size=(300, 400), background=(255, 255, 255, 255), layout=LAYOUT_HORIZONTAL, crop=False, rectangular=True, fontname='Lobster.ttf', fontzoom=2)
         print "Duration: %d sec" % (time.time() - start)
 
-    def _test_create_html_data(self):
+    def test_create_html_data(self):
         """
         HTML code sample
         """
-        data = create_html_data(self.tags, size=(600, 400), fontname='Lobster.ttf', fontzoom=3)
+        data = create_html_data(make_tags(get_tag_counts(self.hound.read())[:30]), size=(600, 400), fontname='Lobster.ttf', fontzoom=3)
         print '\nCSS\n'
         for style in data['css']:
             print style
