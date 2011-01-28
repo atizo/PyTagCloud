@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+from copy import copy
 from math import sin, cos, ceil
 from pygame import transform, font, mask, Surface, Rect, SRCALPHA, draw
 from pygame.sprite import Group, Sprite, collide_mask
 from random import randint, choice
+from string import Template
 import colorsys
-from copy import copy
-import pygame
 import os
+import pygame
+import simplejson
 
 TAG_PADDING = 5
 STEP_SIZE = 1 #relative to base step size of each spiral function
@@ -17,8 +19,9 @@ LOWER_START = 0.45
 UPPER_START = 0.55
 
 FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
-DEFAULT_FONT = 'DroidSans.ttf'
+DEFAULT_FONT = 'Droid Sans'
 DEFAULT_PALETTE = 'default'
+FONT_CACHE = simplejson.load(open(os.path.join(FONT_DIR, 'fonts.json'), 'r'))
 
 pygame.init()
 convsurf = Surface((2 * TAG_PADDING, 2 * TAG_PADDING))
@@ -43,7 +46,10 @@ class Tag(Sprite):
         Sprite.__init__(self)
         self.tag = copy(tag)
         self.rotation = rotation
-        fonter = font.Font(os.path.join(FONT_DIR, fontname), int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
+        
+        font_spec = load_font(fontname)
+        
+        fonter = font.Font(os.path.join(FONT_DIR, font_spec['ttf']), int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
         self.tag['size'] *= fontzoom
         fonter = transform.rotate(fonter, rotation)
         frect = fonter.get_bounding_rect()
@@ -69,11 +75,17 @@ class Tag(Sprite):
         self.rect.x, self.rect.y = pos
         self.mask = mask.from_surface(self.image)
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
+        
+def load_font(name):
+    for font in FONT_CACHE:
+        if font['name'] == name:
+            return font
+    raise AttributeError('Invalid font name. Should be one of %s' % ", ".join([f['name'] for f in FONT_CACHE]))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):
     return int(minsize + (maxsize - minsize) * (count * 1.0 / (maxcount - mincount))**0.75)
 
-def make_tags(wordcounts, minsize=6, maxsize=36, colors=None, scalef=defscale):
+def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     """
     sizes and colors tags 
     wordcounts is a list of tuples(tags, count). (e.g. how often the
@@ -264,6 +276,17 @@ def create_html_data(tags, size=(600, 400), fontname=DEFAULT_FONT, fontzoom=2, r
             'css': [],
             'links': []
             }
+    
+    font_spec = load_font(fontname)
+    
+    template_file = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web/template.html'), 'r')
+    
+    html_template = Template(template_file.read())
+    context = {
+               'font_include': font_spec['web'],
+               'font_name': font_spec['name']
+               }
+    
     color_map = {}
     num_color = 0
     for tag in tags:
@@ -284,7 +307,13 @@ def create_html_data(tags, size=(600, 400), fontname=DEFAULT_FONT, fontzoom=2, r
                'cls': color_map[stag.tag['color']],
                'top': stag.rect.top - stag.fontoffset[1],
                'left': stag.rect.left - stag.fontoffset[0],
-               'size': stag.tag['size']
+               'size': stag.tag['size'],
+               'line-height': stag.rect.height
                }
         data['links'].append(tag)
-    return data
+        
+    context['css'] = '\n'.join(data['css']);
+    context['tags'] = '\n'.join( ['<a class="tag %(cls)s" href="#%(tag)s" style="top: %(top)dpx; left: %(left)dpx; font-size: %(size)dpx; line-height: %(line-height)dpx;">%(tag)s</a>' % link for link in data['links']]);
+        
+    html_text = html_template.substitute(context)
+    return data, html_text
