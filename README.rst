@@ -23,6 +23,7 @@ See tests.py
 
 Example
 =======
+`HTML Cloud <https://www.atizo.com/docs/labs/cloud.html>`_
 
 .. image:: https://github.com/atizo/PyTagCloud/raw/master/docs/example.png
 
