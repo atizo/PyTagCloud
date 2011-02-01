@@ -308,12 +308,13 @@ def create_html_data(tags, size=(600, 400), fontname=DEFAULT_FONT, fontzoom=2, r
                'top': stag.rect.top - stag.fontoffset[1],
                'left': stag.rect.left - stag.fontoffset[0],
                'size': stag.tag['size'],
-               'line-height': stag.rect.height
+               'height': stag.rect.height,
+               'width': stag.rect.width
                }
         data['links'].append(tag)
         
     context['css'] = '\n'.join(data['css']);
-    context['tags'] = '\n'.join( ['<a class="tag %(cls)s" href="#%(tag)s" style="top: %(top)dpx; left: %(left)dpx; font-size: %(size)dpx; line-height: %(line-height)dpx;">%(tag)s</a>' % link for link in data['links']]);
+    context['tags'] = '\n'.join( ['<a class="tag %(cls)s" href="#%(tag)s" style="top: %(top)dpx; left: %(left)dpx; font-size: %(size)dpx; height: %(height)dpx; width: %(width)dpx;">%(tag)s</a>' % link for link in data['links']]);
         
     html_text = html_template.substitute(context)
     return data, html_text
