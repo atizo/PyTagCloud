@@ -11,7 +11,7 @@ import pygame
 import simplejson
 
 TAG_PADDING = 5
-STEP_SIZE = 1 #relative to base step size of each spiral function
+STEP_SIZE = 2 #relative to base step size of each spiral function
 RADIUS = 1
 ECCENTRICITY = 1.5
 
@@ -37,6 +37,8 @@ LAYOUT_MOST_VERTICAL = 3
 LAYOUT_MIX = 4
 
 LAYOUTS = (LAYOUT_HORIZONTAL, LAYOUT_VERTICAL, LAYOUT_MOST_HORIZONTAL, LAYOUT_MOST_VERTICAL, LAYOUT_MIX)
+
+LAST_COLLISON_HIT = None
 
 class Tag(Sprite):
     """
@@ -110,8 +112,14 @@ def _do_collide(sprite, group):
     """
     Use mask based collision detection
     """
+    global LAST_COLLISON_HIT
+    #Test if we still collide with the last hit
+    if LAST_COLLISON_HIT and collide_mask(sprite, LAST_COLLISON_HIT):
+        return True
+    
     for sp in group:
         if collide_mask(sprite, sp):
+            LAST_COLLISON_HIT = sp
             return True
     return False
 
