@@ -16,6 +16,7 @@ Installation
 
 #. Install pygame >= 1.9.1 (http://www.pygame.org/download.shtml)
 #. Add the `pytagcloud` directory to your Python path.
+#. Install simplejson
 
 Usage
 =====
