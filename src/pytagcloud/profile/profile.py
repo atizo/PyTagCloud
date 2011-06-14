@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pytagcloud import make_tags, create_tag_image, LAYOUT_MIX
 from pytagcloud.colors import COLOR_SCHEMES
 from pytagcloud.lang.counter import get_tag_counts
