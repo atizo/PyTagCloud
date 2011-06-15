@@ -4,7 +4,7 @@
 #
 
 from pygame import font, mask, Surface, Rect, SRCALPHA
-from pygame.sprite import Sprite, collide_mask
+from pygame.sprite import Sprite, collide_mask, collide_rect
 import os
 import itertools
 import pygame
@@ -23,11 +23,14 @@ class HierarchicalBBoxeTree(object):
         self._x = sprite.rect.x
         self._y = sprite.rect.y
         self._min_box_size = min_box_size
+        self.collide_boxes = [] #@todo: remove - debug only
         self._tree = self.create_tree(self._sprite)        
         
     def _calculate_box(self, tag, node, horizontal):
         if node[0].rect.width / 2 < self._min_box_size or node[0].rect.height / 2 < self._min_box_size:
             return
+        
+        node[2] = False
         
         if horizontal:
             horizontal = False
@@ -50,12 +53,12 @@ class HierarchicalBBoxeTree(object):
         box2 = Box(b2x, b2y, nw2, nh2)
         
         if collide_mask(box1, tag):  
-            child_node = [box1, []]
+            child_node = [box1, [], True]
             node[1].append(child_node)
             self._calculate_box(tag, child_node, horizontal)
             
         if collide_mask(box2, tag):    
-            child_node = [box2, []]
+            child_node = [box2, [], True]
             node[1].append(child_node)
             self._calculate_box(tag, child_node, horizontal)
             
@@ -74,11 +77,42 @@ class HierarchicalBBoxeTree(object):
                         
     def tree_iter(self):
         return self._tree_iterator(self._tree)
+    
+    def _coll(self, node1, node2):
+        
+        if collide_rect(node1[0], node2[0]):
+            #Check if node1 and node2 are hit leafs
+            if node1[2] and node2[2]:
+                print "found"
+                return True        
+            
+            self.collide_boxes.append(node1[0])
+            
+            if len(node1[1]) and len(node2[1]):                                    
+                for nodex in node1[1]:
+                    for nodey in node2[1]:
+                        return self._coll(nodex, nodey)
+            elif len(node1[1]) and False:
+                print "node1"
+                for nodex in node1[1]:
+                    return self._coll(nodex, node2)
+            elif len(node2[1]) and False:
+                print "node2"
+                for nodex in node2[1]:
+                    return self._coll(nodex, node1)
+    
+    def collide(self, tree):
+        return self._coll(self._tree, tree.tree)
         
     def create_tree(self, tag_sprite):
-        tree = [Box(tag_sprite.rect.x, tag_sprite.rect.y, tag_sprite.rect.width, tag_sprite.rect.height), []]    
+        tree = [Box(tag_sprite.rect.x, tag_sprite.rect.y, tag_sprite.rect.width, tag_sprite.rect.height), [], True]    
         self._calculate_box(tag_sprite, tree, True)    
         return tree
+    
+    def gettree(self):
+        return self._tree
+
+    tree = property(gettree)
     
     def getsprite(self):
         return self._sprite
@@ -156,8 +190,10 @@ if __name__ == '__main__':
     hbtree1.x = 110
     hbtree1.y = 150
     
-    hbtree2.x = 80
-    hbtree2.y = 70
+    hbtree2.x = 340
+    hbtree2.y = 300
+    
+    hbtree1.collide(hbtree2)
     
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("PyTagCloud Intersection Test")    
@@ -178,11 +214,11 @@ if __name__ == '__main__':
         screen.blit(hbtree1.sprite.image, hbtree1.sprite.rect)
         screen.blit(hbtree2.sprite.image, hbtree2.sprite.rect)
         
-        for box1 in hbtree1.tree_iter():
+        for box1 in hbtree1.collide_boxes:
             screen.blit(box1.border, box1.rect)
         
-        for box2 in hbtree2.tree_iter():
-            screen.blit(box2.border, box2.rect)
+        #for box2 in hbtree2.tree_iter():
+        #    screen.blit(box2.border, box2.rect)
         
         pygame.display.flip()       
         
