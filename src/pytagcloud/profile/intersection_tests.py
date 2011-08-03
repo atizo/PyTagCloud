@@ -7,8 +7,8 @@ from pygame import font, mask, Surface, Rect, SRCALPHA
 from pygame.sprite import Sprite, collide_mask, collide_rect
 import os
 import itertools
-import pygame
 import math
+import pygame
 
 FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../fonts')
 
@@ -18,7 +18,7 @@ class HierarchicalBBoxeTree(object):
     """
     Create hierarchical bounding boxes for a given sprite
     """
-    def __init__(self, sprite, min_box_size = 4):
+    def __init__(self, sprite, min_box_size = 6):
         self._sprite = sprite
         self._x = sprite.rect.x
         self._y = sprite.rect.y
@@ -27,20 +27,22 @@ class HierarchicalBBoxeTree(object):
         self._tree = self.create_tree(self._sprite)        
         
     def _calculate_box(self, tag, node, horizontal):
-        if node[0].rect.width / 2 < self._min_box_size or node[0].rect.height / 2 < self._min_box_size:
+        if node[0].rect.width / 2 < self._min_box_size and node[0].rect.height / 2 < self._min_box_size:
             return
         
         node[2] = False
+        created = False
         
-        if horizontal:
+        if horizontal and node[0].rect.width / 2 >= self._min_box_size:
             horizontal = False
             nw1 = math.floor(node[0].rect.width / 2.0)
             nw2 = node[0].rect.width - nw1
             nh1 = nh2 = node[0].rect.height
             b1x = node[0].rect.x
             b2x = node[0].rect.x + nw1
-            b1y = b2y = node[0].rect.y                
-        else:
+            b1y = b2y = node[0].rect.y
+            created = True               
+        elif node[0].rect.height / 2 >= self._min_box_size:
             horizontal = True
             nw1 = nw2 = node[0].rect.width
             nh1 = math.floor(node[0].rect.height / 2.0)
@@ -48,19 +50,21 @@ class HierarchicalBBoxeTree(object):
             b1x = b2x = node[0].rect.x
             b1y = node[0].rect.y
             b2y = node[0].rect.y + nh1
-       
-        box1 = Box(b1x, b1y, nw1, nh1)
-        box2 = Box(b2x, b2y, nw2, nh2)
+            created = True
         
-        if collide_mask(box1, tag):  
-            child_node = [box1, [], True]
-            node[1].append(child_node)
-            self._calculate_box(tag, child_node, horizontal)
+        if created:
+            box1 = Box(b1x, b1y, nw1, nh1)
+            box2 = Box(b2x, b2y, nw2, nh2)
             
-        if collide_mask(box2, tag):    
-            child_node = [box2, [], True]
-            node[1].append(child_node)
-            self._calculate_box(tag, child_node, horizontal)
+            if collide_mask(box1, tag):  
+                child_node = [box1, [], True]
+                node[1].append(child_node)
+                self._calculate_box(tag, child_node, horizontal)
+                
+            if collide_mask(box2, tag):    
+                child_node = [box2, [], True]
+                node[1].append(child_node)
+                self._calculate_box(tag, child_node, horizontal)
             
     def _tree_iterator(self, root):
         if len(root) > 0:        
@@ -149,7 +153,7 @@ class SimpleTag(Sprite):
         frect = fonter.get_bounding_rect()
         frect.x = -frect.x
         frect.y = -frect.y
-        font_sf = Surface((frect.width, frect.height), pygame.SRCALPHA, 32)
+        font_sf = Surface((frect.width, frect.height), SRCALPHA, 32)
         font_sf.blit(fonter, frect)
         self.image = font_sf
         self.rect = font_sf.get_rect()        
@@ -160,14 +164,14 @@ class SimpleTag(Sprite):
 class Box(Sprite):
     def __init__(self, x, y, w, h):
         Sprite.__init__(self)
-        self.image = pygame.Surface((w, h), pygame.SRCALPHA, 32)        
+        self.image = Surface((w, h), SRCALPHA, 32)        
         self.image.fill((255,0,0))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.mask = mask.from_surface(self.image)
         
-        self.border = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA, 32)        
+        self.border = Surface((self.rect.width, self.rect.height), SRCALPHA, 32)        
         pygame.draw.rect(self.border, (255, 0, 0), Rect(0 , 0, self.rect.width , self.rect.height), 1)
         
     def __cmp__(self, other):        
@@ -217,8 +221,8 @@ if __name__ == '__main__':
         for box1 in hbtree1.collide_boxes:
             screen.blit(box1.border, box1.rect)
         
-        #for box2 in hbtree2.tree_iter():
-        #    screen.blit(box2.border, box2.rect)
+        for box2 in hbtree1.tree_iter():
+            screen.blit(box2.border, box2.rect)
         
         pygame.display.flip()       
         
