@@ -98,5 +98,10 @@
 		"name": "Tangerine",
 		"ttf": "Tangerine_Regular.ttf",
 		"web": "http://fonts.googleapis.com/css?family=Tangerine"
+	},
+	{
+        "name": "Coustard",
+        "ttf": "Coustard-Regular.ttf",
+        "web": "http://fonts.googleapis.com/css?family=Coustard"
 	}
 ]

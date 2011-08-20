@@ -1,0 +1,38 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Font Test</title>
+<link href='http://fonts.googleapis.com/css?family=Coustard' rel='stylesheet' type='text/css'>
+	<style type='text/css'>
+        
+        @font-face {
+		    font-family: 'CantarellRegular';
+		    src: url('webfonts/cantarell-regular/cantarell-regular-webfont.eot');
+		    src: local('☺'), url('webfonts/cantarell-regular/cantarell-regular-webfont.woff') format('woff'), url('webfonts/cantarell-regular/cantarell-regular-webfont.ttf') format('truetype'), url('webfonts/cantarell-regular/cantarell-regular-webfont.svg#CantarellRegular') format('svg');
+		    font-weight: normal;
+		    font-style: normal;
+		}
+	   
+
+		a#font {
+			font-family: 'CantarellRegular', serif; /* Cantarell not working */
+			font-size: 140px;
+			position: absolute;
+			top: 100px;
+			left: 100px;
+			margin: auto;
+			/*border: 1px solid red;*/
+			line-height: 110px; /* 79 -> Line-height - 2 * (Ascent - real height) */
+			height: 116px;
+			font-size-adjust: 0;
+			text-decoration: none;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<a id="font" href="#">Cooler</a>
+	<div style="position: absolute; top: 100px; left: 600px; height: 106px; background-color: red; width: 30px;"></div>
+	<div style="position: absolute; top: 244px; left: 100px; height: 10px; background-color: green; width: 500px;"></div>
+</body>
+</html>

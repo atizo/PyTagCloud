@@ -1,9 +1,11 @@
-#Tue Jun 14 22:05:23 CEST 2011
+#Sat Aug 20 15:30:14 CEST 2011
 eclipse.preferences.version=1
 encoding//src/pytagcloud/__init__.py=utf-8
 encoding//src/pytagcloud/colors.py=utf-8
 encoding//src/pytagcloud/lang/counter.py=utf-8
 encoding//src/pytagcloud/lang/stopwords.py=utf-8
-encoding//src/pytagcloud/profile/intersection_tests.py=utf-8
+encoding//src/pytagcloud/profile/_hbox.py=utf-8
+encoding//src/pytagcloud/profile/_intersection_tests.py=utf-8
 encoding//src/pytagcloud/profile/profile.py=utf-8
+encoding//src/pytagcloud/test/font_align.py=utf-8
 encoding//src/pytagcloud/test/tests.py=utf-8
