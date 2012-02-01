@@ -1,0 +1,51 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; utf-8"> 
+	<title>PyTagCloud</title>
+	<style type="text/css">
+		body{
+			background-color: black;		
+		}
+		
+		@font-face {
+		    font-family: 'PTSans';
+		    src: url('../webfonts/ptsans/pt_sans-web-regular-webfont-2.eot');
+		    src: url('../webfonts/ptsans/pt_sans-web-regular-webfont-2.eot?iefix') format('eot'),
+		         url('../webfonts/ptsans/pt_sans-web-regular-webfont-2.woff') format('woff'),
+		         url('../webfonts/ptsans/pt_sans-web-regular-webfont-2.ttf') format('truetype'),
+		         url('../webfonts/ptsans/pt_sans-web-regular-webfont-2.svg#PTSansRegular') format('svg');
+		    font-weight: normal;
+		    font-style: normal;
+		}
+	
+		a.tag{
+			font-family: 'PTSans';
+			text-decoration: none;			
+		}
+		
+		li.cnt{
+			overflow: hidden;
+		    position: absolute;
+			display: block;	
+		}
+		
+		ul.cloud{
+			position: relative;
+			display: block;
+			width: ${width}px;
+			height: ${height}px;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+		
+		$css
+	</style>
+</head>
+<body>
+	<ul class="cloud">	
+	$tags
+	</ul>
+</body>
+</html>

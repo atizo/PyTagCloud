@@ -9,7 +9,6 @@ import os
 import pygame
 import sys
 import timeit
-from pytagcloud.profile.hbox import HierarchicalBBoxeTree
 import cProfile
 import pstats
 
@@ -30,14 +29,15 @@ if __name__ == '__main__':
         print "Ascent", thefont.get_ascent()
         print "Descent", thefont.get_descent()
         print "Diff", thefont.get_linesize() - (thefont.get_ascent() + abs(thefont.get_descent()))
-        text = thefont.render("Cooler", True, (0,0,0))
+        text = thefont.render("Cooer", True, (0,0,0))
         print "Text h", text.get_bounding_rect()
         print ""
 
-    metrics =  thefont.metrics("Cooler")
+    metrics =  thefont.metrics("Cooer")
     
     print min([f[2] for f in metrics])
     print max([f[3] for f in metrics])
+    print metrics[0]
     
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("PyTagCloud Font Alignment")    
