@@ -40,11 +40,6 @@
 		"web": "http://fonts.googleapis.com/css?family=Philosopher"
 	},
 	{
-		"name": "PT Sans Caption",
-		"ttf": "PT_Sans-Caption.ttf",
-		"web": "http://fonts.googleapis.com/css?family=PT+Sans+Caption"
-	},
-	{
 		"name": "Yanone Kaffeesatz",
 		"ttf": "YanoneKaffeesatz-Regular.ttf",
 		"web": "http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz"
@@ -107,6 +102,6 @@
 	{
         "name": "PT Sans Regular",
         "ttf": "PT_Sans-Regular.ttf",
-        "web": "http://fonts.googleapis.com/css?family=Coustard"
+        "web": "http://fonts.googleapis.com/css?family=PT+Sans"
     }
 ]
