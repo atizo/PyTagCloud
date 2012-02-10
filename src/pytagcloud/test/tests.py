@@ -24,11 +24,11 @@ class Test(unittest.TestCase):
     def tearDown(self):
         self.hound.close()
         
-    def _test_tag_counter(self):
+    def test_tag_counter(self):
         tag_list = get_tag_counts(self.hound.read())[:50]     
         self.assertTrue(('sir', 350) in tag_list)
 
-    def _test_make_tags(self):
+    def test_make_tags(self):
         mtags = make_tags(get_tag_counts(self.hound.read())[:60])
         found = False
         for tag in mtags:
@@ -38,25 +38,23 @@ class Test(unittest.TestCase):
             
         self.assertTrue(found)
 
-    def _test_create_tag_image(self):
+    def test_layouts(self):
         start = time.time()
-        tags = make_tags(get_tag_counts(self.hound.read())[:30])
+        tags = make_tags(get_tag_counts(self.hound.read())[:80], maxsize=120)
         for layout in LAYOUTS:
-            create_tag_image(tags, os.path.join(self.test_output, 'cloud_%s.png' % layout), size=(600, 500), background=(255, 255, 255, 255), layout=layout, crop=True, fontname='Lobster', fontzoom=3)
+            create_tag_image(tags, os.path.join(self.test_output, 'cloud_%s.png' % layout),
+                             size=(900, 600),
+                             background=(255, 255, 255, 255),
+                             layout=layout, fontname='Lobster')
         print "Duration: %d sec" % (time.time() - start)
         
-    def _test_large_tag_image(self):
+    def test_large_tag_image(self):
         start = time.time()
         tags = make_tags(get_tag_counts(self.hound.read())[:80], maxsize=120, 
                          colors=COLOR_SCHEMES['audacity'])
         create_tag_image(tags, os.path.join(self.test_output, 'cloud_large.png'), 
-                         ratio=0.75, background=(0, 0, 0, 255), 
+                         size=(900, 600), background=(0, 0, 0, 255), 
                          layout=LAYOUT_HORIZONTAL, fontname='Lobster')
-        print "Duration: %d sec" % (time.time() - start)
-
-    def _test_create_tag_image_rect(self):
-        start = time.time()
-        create_tag_image(make_tags(get_tag_counts(self.hound.read())[:30]), os.path.join(self.test_output, 'cloud_rect.png'), size=(300, 400), background=(255, 255, 255, 255), layout=LAYOUT_HORIZONTAL, crop=False, rectangular=True, fontname='Lobster', fontzoom=2)
         print "Duration: %d sec" % (time.time() - start)
 
     def test_create_html_data(self):
