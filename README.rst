@@ -46,7 +46,7 @@ You probably want to see some code by now, so here's an example:
     
     YOUR_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 
-    tags = make_tags(get_tag_counts(), maxsize=120)
+    tags = make_tags(get_tag_counts(YOUR_TEXT), maxsize=120)
     
     create_tag_image(tags, 'cloud_large.png', size=(900, 600), fontname='Lobster')
 
