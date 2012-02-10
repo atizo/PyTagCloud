@@ -115,6 +115,10 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     color is either chosen from colors (list of rgb tuples) if provided or random
     """
     counts = [tag[1] for tag in wordcounts]
+    
+    if not len(counts):
+        return []
+    
     maxcount = max(counts)
     mincount = min(counts)
     tags = []
@@ -326,7 +330,11 @@ def create_tag_image(
         rectangular=False):
     """
     Create a png tag cloud image
-    """    
+    """
+    
+    if not len(tags):
+        return
+    
     sizeRect, tag_store = _draw_cloud(tags,
                                       layout,
                                       size=size, 
@@ -347,6 +355,10 @@ def create_html_data(tags,
     """
     Create data structures to be used for HTML tag clouds.
     """
+    
+    if not len(tags):
+        return
+    
     sizeRect, tag_store = _draw_cloud(tags,
                                       layout,
                                       size=size, 

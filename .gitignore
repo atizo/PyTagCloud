@@ -2,4 +2,5 @@
 *.profile
 MANIFEST
 dist
+build
 src/pytagcloud/test/out/*.png
