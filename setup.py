@@ -1,7 +1,11 @@
 from distutils.core import setup
+import codecs
+import os
 
-with open('README.rst') as stream:
-    long_description = stream.read().decode('utf-8')
+if os.path.exists("README.rst"):
+    long_description = codecs.open("README.rst", "r", "utf-8").read()
+else:
+    long_description = "See http://pypi.python.org/pypi/pytagcloud/"
 
 setup(
     name = 'pytagcloud',
@@ -14,12 +18,20 @@ setup(
     packages = ['pytagcloud', 'pytagcloud.lang'],
     package_dir = {'pytagcloud': 'src/pytagcloud'},
     package_data = {'pytagcloud': ['fonts/*.*']},
+    platforms = ["any"],
+    license = "BSD",
     classifiers = [
                    'Development Status :: 4 - Beta',
-                   'Environment :: Web Environment',
-                   'Intended Audience :: Developers',
                    'License :: OSI Approved :: BSD License',
-                   'Operating System :: OS Independent',
+                   'Topic :: Multimedia :: Graphics',
+                   'Topic :: Text Processing :: Fonts',
+                   'Topic :: Text Processing :: Markup :: HTML',
+                   'Intended Audience :: Developers',
+                   'Environment :: Web Environment',
                    'Programming Language :: Python',
+                   'Operating System :: OS Independent',
+                   'Operating System :: POSIX',
+                   'Operating System :: Microsoft :: Windows',
+                   'Operating System :: MacOS :: MacOS X'
                    ],
 )
