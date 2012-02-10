@@ -2,3 +2,4 @@
 *.profile
 MANIFEST
 dist
+src/pytagcloud/test/out/*.png
