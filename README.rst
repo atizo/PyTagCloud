@@ -1,6 +1,6 @@
-====================
-PyTagCloud
-====================
+=============
+ PyTagCloud
+=============
 
 PyTagCloud let you create simple tag clouds inspired by http://www.wordle.net/
 
@@ -14,18 +14,47 @@ If you have ideas for other formats please let us know.
 Installation
 ============
 
-#. Install pygame >= 1.9.1 (http://www.pygame.org/download.shtml)
-#. Install simplejson (sudo pip install simplejson)
-#. Add the `pytagcloud` directory to your Python path.
+You can install PyTagCloud either via the Python Package Index (PyPI) or from source.
 
-Usage
-=====
-See tests.py
+To install using `pip`::
+
+    $ pip install -U pytagcloud
+
+To install using form source `download it <https://github.com/atizo/PyTagCloud/zipball/master>`_::
+
+    $ python setup.py install
+
+Requirements
+------------
+
+#. Install `pygame <http://www.pygame.org/download.shtml>`_ >= 1.9.1::
+
+    $ apt-get install python-pygame
+    
+#. Install simplejson::
+
+   $ pip install simplejson
+
+Quick start
+===========
+
+You probably want to see some code by now, so here's an example:
+::
+
+    from pytagcloud import create_tag_image, make_tags
+    from pytagcloud.lang.counter import get_tag_counts
+    
+    YOUR_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+
+    tags = make_tags(get_tag_counts(), maxsize=120)
+    
+    create_tag_image(tags, 'cloud_large.png', size=(900, 600), fontname='Lobster')
+
+More examples can be found in `test.py <https://github.com/atizo/PyTagCloud/blob/master/src/pytagcloud/test/tests.py>`_.
 
 Example
 =======
-`HTML Cloud <https://www.atizo.com/docs/labs/cloud.html>`_
+`Demo <https://www.atizo.com/docs/labs/cloud.html>`_
 
 .. image:: https://github.com/atizo/PyTagCloud/raw/master/docs/example.png
 
-Cloud generated from http://wikilivres.info/wiki/Zur_Elektrodynamik_bewegter_K%C3%B6rper
