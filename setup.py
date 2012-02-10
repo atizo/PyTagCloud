@@ -9,7 +9,7 @@ else:
 
 setup(
     name = 'pytagcloud',
-    version = '0.3.2',
+    version = '0.3.3',
     description = "Create beautiful tag clouds as images or HTML",
     long_description = long_description,
     author = 'Reto Aebersold',
