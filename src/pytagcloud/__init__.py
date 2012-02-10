@@ -160,8 +160,11 @@ def _get_group_bounding(tag_store, sizeRect):
 def _archimedean_spiral(reverse):
     DEFAULT_STEP = 0.05 # radians
     t = 0
+    r = 1
+    if reverse:
+        r = -1
     while True:
-        t += DEFAULT_STEP * STEP_SIZE * reverse
+        t += DEFAULT_STEP * STEP_SIZE * r
         yield (ECCENTRICITY * RADIUS * t * cos(t), RADIUS * t * sin(t))
 
 def _rectangular_spiral(reverse):
@@ -188,7 +191,7 @@ def _search_place(current_tag, tag_store, canvas, spiral, ratio):
     Resize the canvas if the spiral exceeds the bounding rectangle
     """
 
-    reverse = choice((-1, 1))
+    reverse = choice((0, 1))
     start_x = current_tag.rect.x
     start_y = current_tag.rect.y
     min_dist = None
@@ -299,7 +302,6 @@ def _draw_cloud(
     canvas = _get_tags_bounding(aligned_tags)
     
     # resize cloud
-    print canvas.w, canvas.h
     zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
     
     for tag in aligned_tags:
@@ -375,20 +377,17 @@ def create_html_data(tags,
             color_map[tag['color']] = color_name
 
     for stag in tag_store:
-        metrics =  stag.font.metrics(stag.tag['tag'])
         line_offset = 0
-        if min([f[2] for f in metrics]) < stag.font.get_descent() * 0.1:
-            line_offset = stag.font.get_linesize() - 1.95 * (stag.font.get_ascent() + abs(stag.font.get_descent() * 0.9) - stag.rect.height)
-        else:
-            line_offset = stag.font.get_linesize() -  1.95 * (stag.font.get_ascent() - stag.rect.height)
+        
+        line_offset = stag.font.get_linesize() - (stag.font.get_ascent() +  abs(stag.font.get_descent()) - stag.rect.height) - 4
         
         tag = {
                'tag': stag.tag['tag'],
                'cls': color_map[stag.tag['color']],
-               'top': stag.rect.y - 10,
-               'left': stag.rect.x,
-               'size': stag.tag['size'] - 6,
-               'height': stag.rect.height * 1.15,
+               'top': stag.rect.y - sizeRect.y,
+               'left': stag.rect.x - sizeRect.x,
+               'size': stag.tag['size'] - 4,
+               'height': int(stag.rect.height * 1.19),
                'width': stag.rect.width,
                'lh': line_offset
                }
