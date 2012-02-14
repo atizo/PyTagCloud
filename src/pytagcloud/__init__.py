@@ -398,8 +398,8 @@ def create_html_data(tags,
                'cls': color_map[stag.tag['color']],
                'top': stag.rect.y - sizeRect.y,
                'left': stag.rect.x - sizeRect.x,
-               'size': stag.tag['size'] - 4,
-               'height': int(stag.rect.height * 1.19),
+               'size': int(stag.tag['size'] * 0.85),
+               'height': int(stag.rect.height * 1.19) + 4,
                'width': stag.rect.width,
                'lh': line_offset
                }
