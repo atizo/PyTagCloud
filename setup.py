@@ -9,14 +9,13 @@ else:
 
 setup(
     name = 'pytagcloud',
-    version = '0.3.3',
+    version = '0.3.4',
     description = "Create beautiful tag clouds as images or HTML",
     long_description = long_description,
     author = 'Reto Aebersold',
     author_email = 'aeby@atizo.com',
     url = 'https://github.com/atizo/PyTagCloud',    
     packages = ['pytagcloud', 'pytagcloud.lang'],
-    package_dir = {'pytagcloud': 'src/pytagcloud'},
     package_data = {'pytagcloud': ['fonts/*.*']},
     platforms = ["any"],
     license = "BSD",
