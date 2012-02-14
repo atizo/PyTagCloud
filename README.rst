@@ -20,9 +20,23 @@ To install using `pip`::
 
     $ pip install -U pytagcloud
 
-To install using form source `download it <https://github.com/atizo/PyTagCloud/zipball/master>`_::
+To install using `easy_install`::
 
-    $ python setup.py install
+    $ easy_install -U pytagcloud
+
+
+Downloading and installing from source
+--------------------------------------
+
+Download the latest version of PyTagCloud from
+http://pypi.python.org/pypi/pytagcloud/
+
+You can install it by doing the following,::
+
+    $ tar xfz pytagcloud-*.tar.gz
+    $ cd pytagcloud-*/
+    $ python setup.py build
+    # python setup.py install # as root
 
 Requirements
 ------------
@@ -58,3 +72,11 @@ Example
 
 .. image:: https://github.com/atizo/PyTagCloud/raw/master/docs/example.png
 
+Contributing
+============
+
+Development of `pytagcloud` happens at Github: https://github.com/atizo/PyTagCloud
+
+You are highly encouraged to participate in the development
+of `pytagcloud`. If you don't like Github (for some reason) you're welcome
+to send regular patches.
