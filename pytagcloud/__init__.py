@@ -102,6 +102,8 @@ def load_font(name):
                          ", ".join([f['name'] for f in FONT_CACHE]))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):
+    if maxcount == mincount:
+        return int((maxsize - minsize) / 2.0 + minsize)
     return int(minsize + (maxsize - minsize) * 
                (count * 1.0 / (maxcount - mincount)) ** 0.8)
 

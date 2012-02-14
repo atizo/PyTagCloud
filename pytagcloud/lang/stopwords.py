@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-ACTIVE_LISTS = ('german, french, italian, english, spanish')
+ACTIVE_LISTS = ('german', 'french', 'italian', 'english', 'spanish')
 
 class StopWords(object):
     
@@ -31,7 +31,7 @@ class StopWords(object):
         return word in self.stop_words_lists[self.language]
     
     def guess(self, words):
-        currentWinner = None;
+        currentWinner = ACTIVE_LISTS[0];
         currentMax = 0;
         
         for language, stop_word_list in self.stop_words_lists.items():

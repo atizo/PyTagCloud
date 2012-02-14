@@ -58,7 +58,8 @@ You probably want to see some code by now, so here's an example:
     from pytagcloud import create_tag_image, make_tags
     from pytagcloud.lang.counter import get_tag_counts
     
-    YOUR_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+    YOUR_TEXT = "A tag cloud is a visual representation for text data, typically\
+    used to depict keyword metadata on websites, or to visualize free form text."
 
     tags = make_tags(get_tag_counts(YOUR_TEXT), maxsize=120)
     
