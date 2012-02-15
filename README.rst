@@ -36,7 +36,7 @@ You can install it by doing the following,::
     $ tar xfz pytagcloud-*.tar.gz
     $ cd pytagcloud-*/
     $ python setup.py build
-    # python setup.py install # as root
+    $ python setup.py install # as root
 
 Requirements
 ------------
