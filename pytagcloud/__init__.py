@@ -80,22 +80,22 @@ class Tag(Sprite):
         self.rect.x = initial_position[0]
         self.rect.y = initial_position[1]
         self._update_mask()
-        
+
     def _update_mask(self):
         self.mask = mask.from_surface(self.image)
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
-    def flip(self):        
+    def flip(self):
         angle = 90 if self.rotation == 0 else - 90
         self.rotate(angle)
-        
+
     def rotate(self, angle):
         pos = (self.rect.x, self.rect.y)
         self.image = transform.rotate(self.image, angle)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = pos
         self._update_mask()
-        
+
     def update_fontsize(self):
         self.font = font.Font(os.path.join(FONT_DIR, self.font_spec['ttf']),
                               self.tag['size'])
@@ -123,10 +123,10 @@ def make_tags(wordcounts, minsize=3, maxsize=36, colors=None, scalef=defscale):
     color is either chosen from colors (list of rgb tuples) if provided or random
     """
     counts = [tag[1] for tag in wordcounts]
-    
+
     if not len(counts):
         return []
-    
+
     maxcount = max(counts)
     mincount = min(counts)
     tags = []
@@ -158,7 +158,7 @@ def _get_tags_bounding(tag_store):
         return Rect(0,0,0,0)
     rects = [tag.rect for tag in tag_store]
     return rects[0].unionall(rects[1:])
-        
+
 def _get_group_bounding(tag_store, sizeRect):
     if not isinstance(sizeRect, pygame.Rect):
         sizeRect = Rect(0, 0, sizeRect[0], sizeRect[1])
@@ -221,46 +221,46 @@ def _search_place(current_tag, tag_store, canvas, spiral, ratio):
                 tag_store.add(current_tag)
                 return
             else:
-                # get the distance from center                
+                # get the distance from center
                 current_dist = (abs(cx - current_tag.rect.x) ** 2 + 
-                                abs(cy - current_tag.rect.y) ** 2) ** 0.5      
+                                abs(cy - current_tag.rect.y) ** 2) ** 0.5
                 if not min_dist or current_dist < min_dist:
                     opt_x = current_tag.rect.x
                     opt_y = current_tag.rect.y 
                     min_dist = current_dist
-                
+
                 # only add tag if the spiral covered the canvas boundaries
                 if abs(dx) > canvas.width / 2.0 and abs(dy) > canvas.height / 2.0:
                     current_tag.rect.x = opt_x                    
                     current_tag.rect.y = opt_y                    
                     tag_store.add(current_tag)
-                    
+
                     new_bounding = current_bounding.union(current_tag.rect)
-                    
+
                     delta_x = delta_y = 0.0
                     if new_bounding.w > canvas.width:
                         delta_x = new_bounding.w - canvas.width
-                        
+
                         canvas.width = new_bounding.w
                         delta_y = ratio * new_bounding.w - canvas.height
-                        canvas.height = ratio * new_bounding.w                                        
-                        
-                    if new_bounding.h > canvas.height:                        
+                        canvas.height = ratio * new_bounding.w
+
+                    if new_bounding.h > canvas.height:
                         delta_y = new_bounding.h - canvas.height
-                        
+
                         canvas.height = new_bounding.h
                         canvas.width = new_bounding.h / ratio
                         delta_x = canvas.width - canvas.width
-                    
+
                     # realign
                     for tag in tag_store:
                         tag.rect.x += delta_x / 2.0
                         tag.rect.y += delta_y / 2.0
-                    
-                    
+
+
                     canvas = _get_tags_bounding(tag_store)
-                               
-                    return  
+
+                    return
 
 def _draw_cloud(
         tag_list,
@@ -268,7 +268,7 @@ def _draw_cloud(
         size=(500,500),
         fontname=DEFAULT_FONT,
         rectangular=False):
-    
+
     # sort the tags by size and word length
     tag_list.sort(key=lambda tag: len(tag['tag']))
     tag_list.sort(key=lambda tag: tag['size'])
@@ -281,15 +281,15 @@ def _draw_cloud(
         tag_sprite = Tag(tag, (0, 0), fontname=fontname)
         area += tag_sprite.mask.count()
         tag_sprites.append(tag_sprite)
-    
+
     canvas = Rect(0, 0, 0, 0)
     ratio = float(size[1]) / size[0]
-    
+
     if rectangular:
         spiral = _rectangular_spiral
     else:
         spiral = _archimedean_spiral
-        
+
     aligned_tags = Group()
     for tag_sprite in tag_sprites:
         angle = 0
@@ -297,7 +297,7 @@ def _draw_cloud(
             angle = 90
         elif layout == LAYOUT_VERTICAL:
             angle = 90
-        
+
         tag_sprite.rotate(angle)
 
         xpos = canvas.width - tag_sprite.rect.width
@@ -310,9 +310,9 @@ def _draw_cloud(
         ypos = randint(int(ypos * LOWER_START), int(ypos * UPPER_START))
         tag_sprite.rect.y = ypos
 
-        _search_place(tag_sprite, aligned_tags, canvas, spiral, ratio)            
+        _search_place(tag_sprite, aligned_tags, canvas, spiral, ratio)
     canvas = _get_tags_bounding(aligned_tags)
-    
+
     # resize cloud
     zoom = min(float(size[0]) / canvas.w, float(size[1]) / canvas.h)
     
@@ -323,9 +323,9 @@ def _draw_cloud(
         tag.rect.height *= zoom
         tag.tag['size'] = int(tag.tag['size'] * zoom)
         tag.update_fontsize() 
-    
+
     canvas = _get_tags_bounding(aligned_tags)
-    
+
     return canvas, aligned_tags
 
 def create_tag_image(
@@ -339,16 +339,16 @@ def create_tag_image(
     """
     Create a png tag cloud image
     """
-    
+
     if not len(tags):
         return
-    
+
     sizeRect, tag_store = _draw_cloud(tags,
                                       layout,
                                       size=size, 
                                       fontname=fontname,
                                       rectangular=rectangular)
-    
+
     image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
     image_surface.fill(background)
     for tag in tag_store:
@@ -363,23 +363,23 @@ def create_html_data(tags,
     """
     Create data structures to be used for HTML tag clouds.
     """
-    
+
     if not len(tags):
         return
-    
+
     sizeRect, tag_store = _draw_cloud(tags,
                                       layout,
                                       size=size, 
                                       fontname=fontname,
                                       rectangular=rectangular)
-    
+
     tag_store = sorted(tag_store, key=lambda tag: tag.tag['size'])
     tag_store.reverse()
     data = {
             'css': {},
             'links': []
             }
-    
+
     color_map = {}
     for color_index, tag in enumerate(tags):
         if not color_map.has_key(tag['color']):
@@ -398,11 +398,11 @@ def create_html_data(tags,
 
     for stag in tag_store:
         line_offset = 0
-        
+
         line_offset = stag.font.get_linesize() - (stag.font.get_ascent() + \
                                                   abs(stag.font.get_descent()) - \
                                                   stag.rect.height) - 4
-        
+
         tag = {
                'tag': stag.tag['tag'],
                'cls': color_map[stag.tag['color']],
@@ -413,8 +413,8 @@ def create_html_data(tags,
                'width': stag.rect.width,
                'lh': line_offset
                }
-        
+
         data['links'].append(tag)
         data['size'] = (sizeRect.w, sizeRect.h * 1.15)
-            
+
     return data
