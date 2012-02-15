@@ -47,6 +47,14 @@ LAYOUTS = (
 
 LAST_COLLISON_HIT = None
 
+FONTS = {}
+
+def get_font(font, size):
+    name = font['ttf']
+    if (name, size) not in FONTS:
+        FONTS[name, size] = pygame.font.Font(os.path.join(FONT_DIR, name), size)
+    return FONTS[name, size]
+
 class Tag(Sprite):
     """
     Font tag sprite. Blit the font to a surface to correct the font padding
@@ -57,9 +65,7 @@ class Tag(Sprite):
         self.rotation = 0
         
         self.font_spec = load_font(fontname)
-        self.font = font.Font(os.path.join(FONT_DIR,
-                                           self.font_spec['ttf']),
-                                           self.tag['size'])
+        self.font = get_font(self.font_spec, self.tag['size'])
         fonter = self.font.render(tag['tag'], True, tag['color'])
         frect = fonter.get_bounding_rect()
         frect.x = -frect.x
@@ -393,7 +399,9 @@ def create_html_data(tags,
     for stag in tag_store:
         line_offset = 0
         
-        line_offset = stag.font.get_linesize() - (stag.font.get_ascent() +  abs(stag.font.get_descent()) - stag.rect.height) - 4
+        line_offset = stag.font.get_linesize() - (stag.font.get_ascent() + \
+                                                  abs(stag.font.get_descent()) - \
+                                                  stag.rect.height) - 4
         
         tag = {
                'tag': stag.tag['tag'],

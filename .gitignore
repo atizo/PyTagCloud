@@ -3,4 +3,4 @@
 MANIFEST
 dist
 build
-pytagcloud/test/out/*.png
+pytagcloud/test/out/*
