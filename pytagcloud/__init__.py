@@ -349,8 +349,11 @@ def create_tag_image(
                                       fontname=fontname,
                                       rectangular=rectangular)
 
-    image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
-    image_surface.fill(background)
+    if type(output) == pygame.Surface:
+        image_surface = output
+    else:
+        image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
+        image_surface.fill(background)
     for tag in tag_store:
         image_surface.blit(tag.image, tag.rect)
     pygame.image.save(image_surface, output)
