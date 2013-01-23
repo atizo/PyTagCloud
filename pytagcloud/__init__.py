@@ -12,6 +12,7 @@ import simplejson
 
 
 TAG_PADDING = 5
+TAG_CLOUD_PADDING = 5 # Margins added to the whole image
 STEP_SIZE = 2 # relative to base step size of each spiral function
 RADIUS = 1
 ECCENTRICITY = 1.5
@@ -354,7 +355,7 @@ def create_tag_image(
         image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
         image_surface.fill(background)
     for tag in tag_store:
-        image_surface.blit(tag.image, tag.rect)
+        image_surface.blit(tag.image, (tag.rect.x - sizeRect.x + TAG_CLOUD_PADDING, tag.rect.y - sizeRect.y + TAG_CLOUD_PADDING))
     pygame.image.save(image_surface, output)
 
 def create_html_data(tags, 
