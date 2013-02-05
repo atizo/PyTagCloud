@@ -68,7 +68,8 @@ You probably want to see some code by now, so here's an example:
     import webbrowser
     webbrowser.open('cloud_large.png') # see results
 
-More examples can be found in `test.py <https://github.com/atizo/PyTagCloud/blob/master/src/pytagcloud/test/tests.py>`_.
+More examples can be found in `test.py <https://github.com/atizo/PyTagCloud/blob/master/pytagcloud/test/tests.py>`_.
+                                        
 
 Example
 =======
