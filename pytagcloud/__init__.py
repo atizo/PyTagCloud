@@ -352,7 +352,7 @@ def create_tag_image(
     if type(output) == pygame.Surface:
         image_surface = output
     else:
-        image_surface = Surface((sizeRect.w, sizeRect.h), SRCALPHA, 32)
+        image_surface = Surface((sizeRect.w + 2*TAG_CLOUD_PADDING, sizeRect.h + 2*TAG_CLOUD_PADDING), SRCALPHA, 32)
         image_surface.fill(background)
     for tag in tag_store:
         image_surface.blit(tag.image, (tag.rect.x - sizeRect.x + TAG_CLOUD_PADDING, tag.rect.y - sizeRect.y + TAG_CLOUD_PADDING))
