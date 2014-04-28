@@ -2,6 +2,7 @@
 import re
 from pytagcloud.lang.stopwords import StopWords
 from operator import itemgetter
+from collections import defaultdict
 
 def get_tag_counts(text):
     """
@@ -13,14 +14,11 @@ def get_tag_counts(text):
     s = StopWords()     
     s.load_language(s.guess(words))
     
-    counted = {}
+    counted = defaultdict(int)
     
     for word in words:
         if not s.is_stop_word(word) and len(word) > 1:
-            if counted.has_key(word):
-                counted[word] += 1
-            else: 
-                counted[word] = 1
+            counted[word] += 1
       
     return sorted(counted.iteritems(), key=itemgetter(1), reverse=True)
     
